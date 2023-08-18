@@ -20,7 +20,7 @@ class PyWp:
         # options.add_argument('--headless')
         # options.add_argument('--disable-dev-shm-usage')
 
-        print(profile_path, profile_name)
+        # print(profile_path, profile_name)
         if profile_path is not None and profile_name is not None:
             print("Not None")
             #provide location where chrome stores profiles
@@ -38,7 +38,7 @@ class PyWp:
         self.driver = webdriver.Chrome(options=self.options)
         #provide website url here
         self.driver.get(path)
-        # time.sleep(100)
+        # time.sleep(120)
         input("Press Enter once you log in")
 
 
@@ -151,13 +151,3 @@ class PyWp:
         for phone_no, name in zip(phone_nos, names):
             custom_message = caption.replace("{name}", name)
             self.send_image(phone_no, custom_message)
-
-
-if __name__ == '__main__':
-    wp_automation = PyWp("C:\\Users\\vashesh\\AppData\\Local\\Google\\Chrome\\User Data", "Profile 1")
-    wp_automation.send_message("+917678066555", "Hi Vashesh")
-    # wp_automation.send_messages_to_multiple_contacts(["+917678066555", "+917678066555"], "Hi Vashesh VJ")
-    # send_image("phone_no", r"path")
-    # send_customized_messages_to_multiple_contacts(["phone_no1", "phone_no2"], ["Name1", "Name2"], "Hi {name}")
-    input("Enter To Close")
-    wp_automation.close_browser()
