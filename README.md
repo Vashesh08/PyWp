@@ -12,7 +12,7 @@ git clone https://github.com/Vashesh08/PyWp.git
 
 # Usage
 ```
-from pywp.whats import PyWp
+from PyWp.whats import PyWp
 
 # Send a WhatsApp Message to a Contact
 PyWp().send_message("+910123456789", "Hello")
