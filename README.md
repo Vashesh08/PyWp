@@ -10,6 +10,11 @@ Press Enter on cmd once you login to WhatsApp
 git clone https://github.com/Vashesh08/PyWp.git
 ```
 
+# Install The Dependencies
+```
+pip install -r PyWp\requirements.txt
+```
+
 # Usage
 ```
 from PyWp.whats import PyWp
