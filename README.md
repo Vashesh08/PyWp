@@ -1,6 +1,9 @@
 # PyWp
 Sending Automated Whatsapp Messages To Contacts Using Python.
+
 Contact Needs to be already saved in Your Phone
+
+Press Enter on cmd once you login to WhatsApp
 
 # Cloning The Repository
 ```
