@@ -1,2 +1,2 @@
 # PyWp
-Creating an Alternative to PyWhatKit   
+Sending Automated Whatsapp Messages To Contacts Using Python 
