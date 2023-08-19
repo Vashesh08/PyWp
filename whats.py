@@ -102,7 +102,7 @@ class PyWp:
             time.sleep(1)
 
 
-    def send_image_or_video(self, phone_no: str, path: str, caption: str=""):
+    def send_image(self, phone_no: str, path: str, caption: str=""):
         path.replace('\\','//')
         
         self.select_contact(phone_no)
@@ -141,13 +141,13 @@ class PyWp:
             return
 
 
-    def send_image_or_video_to_multiple_contacts(self, phone_nos: list[str], path: str, caption: str=""):
+    def send_image_to_multiple_contacts(self, phone_nos: list[str], path: str, caption: str=""):
         for phone_no in phone_nos:
             self.send_image(phone_no, path, caption)
             time.sleep(1)
 
 
-    def send_image_or_video_with_custom_messages(self, phone_nos: list[str], names: list[str], path: str, caption: str=""):
+    def send_image_to_multiple_contacts_with_custom_messages(self, phone_nos: list[str], names: list[str], path: str, caption: str=""):
         for phone_no, name in zip(phone_nos, names):
             custom_message = caption.replace("{name}", name)
             self.send_image(phone_no, custom_message)
