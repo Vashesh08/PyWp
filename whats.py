@@ -9,6 +9,7 @@ from PIL import Image
 from webbrowser import open
 import win32clipboard
 
+
 class PyWp:
 
     def __init__(self, profile_path=None, profile_name=None) -> None:
@@ -20,9 +21,12 @@ class PyWp:
         # options.add_argument('--headless')
         # options.add_argument('--disable-dev-shm-usage')
 
+        prefs = {"profile.default_content_setting_values.media_stream_camera" : 1}
+        self.options.add_experimental_option("prefs",prefs)
+        
         # print(profile_path, profile_name)
         if profile_path is not None and profile_name is not None:
-            print("Not None")
+            # print("Not None")
             #provide location where chrome stores profiles
             self.options.add_argument(f"--user-data-dir={profile_path}")
 
@@ -42,7 +46,20 @@ class PyWp:
         input("Press Enter once you log in")
 
 
+    def logout(self):
+        nav_xpath = '//*[@id="app"]/div/div/div[4]/header/div[2]/div/span/div[4]/div/span'
+        nav_element = WebDriverWait(self.driver, 15).until(EC.presence_of_element_located((By.XPATH, nav_xpath)))
+        nav_element.click()
+
+        logout_xpath = f'//*[@id="app"]/div/div/div[4]/header/div[2]/div/span/div[4]/span/div/ul/li[6]/div'
+        logout_element = WebDriverWait(self.driver, 15).until(EC.presence_of_element_located((By.XPATH, logout_xpath)))
+        logout_element.click()
+
+        time.sleep(25)
+
+
     def close_browser(self):
+        self.logout()
         self.driver.quit()
 
 
@@ -133,7 +150,7 @@ class PyWp:
                     caption_element.send_keys("shift", "enter")
                 else:
                     caption_element.send_keys(char)
-                
+                time.sleep(0.25)
             caption_element.send_keys(Keys.ENTER)
             time.sleep(2)
         except:
@@ -150,4 +167,60 @@ class PyWp:
     def send_image_to_multiple_contacts_with_custom_messages(self, phone_nos: list[str], names: list[str], path: str, caption: str=""):
         for phone_no, name in zip(phone_nos, names):
             custom_message = caption.replace("{name}", name)
-            self.send_image(phone_no, custom_message)
+            self.send_image(phone_no, path, custom_message)
+            time.sleep(1)
+
+
+    def send_video(self, phone_no: str, path: str, caption: str="", wait_time=25):
+        path.replace('\\','//')
+        
+        self.select_contact(phone_no)
+
+        # Opening Attach Button
+        try:
+            attachment_path = f'//*[@id="main"]/footer/div[1]/div/span[2]/div/div[1]/div[2]/div/div/div/span'
+            attachment_element = WebDriverWait(self.driver, 15).until(EC.presence_of_element_located((By.XPATH, attachment_path)))
+            attachment_element.click()
+        except:
+            print("Not Able to open Attachment")
+            return
+        
+        try:
+            video_attachment_path = f'//input[@accept="image/*,video/mp4,video/3gpp,video/quicktime"]'
+            video_attachment_element = WebDriverWait(self.driver, 15).until(EC.presence_of_element_located((By.XPATH, video_attachment_path)))
+            video_attachment_element.send_keys(path)
+            time.sleep(5)
+        except:
+            print("Not Able to Attach Video")
+            return
+        
+        try:
+            caption_path = f'//*[@id="app"]/div/div/div[3]/div[2]/span/div/span/div/div/div[2]/div/div[1]/div[3]/div/div/div[1]/div[1]/p'
+            caption_element = WebDriverWait(self.driver, 15).until(EC.presence_of_element_located((By.XPATH, caption_path)))
+            for char in caption:
+                if char == "\n":
+                    caption_element.send_keys("shift", "enter")
+                else:
+                    caption_element.send_keys(char)
+                time.sleep(0.25)
+                
+            caption_element.send_keys(Keys.ENTER)
+            time.sleep(wait_time)
+        except:
+            print("Image Caption Could not be sent")
+            return
+
+
+    def send_video_to_multiple_contacts(self, phone_nos: list[str], path: str, caption: str=""):
+        for phone_no in phone_nos:
+            self.send_video(phone_no, path, caption)
+            time.sleep(1)
+
+
+    def send_video_to_multiple_contacts_with_custom_messages(self, phone_nos: list[str], names: list[str], path: str, caption: str=""):
+        for phone_no, name in zip(phone_nos, names):
+            custom_message = caption.replace("{name}", name)
+            self.send_video(phone_no, path, custom_message)
+            time.sleep(1)
+
+    
