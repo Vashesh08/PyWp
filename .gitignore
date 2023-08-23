@@ -1,3 +1,7 @@
 bacc.py
 bac2.py
 __init__.py
+Scripts\
+Include\
+Lib\
+__pycache__\
