@@ -55,6 +55,10 @@ class PyWp:
         logout_element = WebDriverWait(self.driver, 15).until(EC.presence_of_element_located((By.XPATH, logout_xpath)))
         logout_element.click()
 
+        logout_confirmation_xpath = f'//*[@id="app"]/div/span[2]/div/div/div/div/div/div/div[3]/div/button[2]'
+        logout_confirmation_element = WebDriverWait(self.driver, 15).until(EC.presence_of_element_located((By.XPATH, logout_confirmation_xpath)))
+        logout_confirmation_element.click()
+
         time.sleep(25)
 
 
@@ -87,13 +91,26 @@ class PyWp:
         try:
             message_path = f'//*[@id="main"]/footer/div[1]/div/span[2]/div/div[2]/div[1]'
             message_element = WebDriverWait(self.driver, 15).until(EC.presence_of_element_located((By.XPATH, message_path)))
-            message = f'{message}'
-            for letter in message:
-                if letter == "\n":
+            index = 0
+            length = len(message)
+            while index < length:
+                letter = message[index]
+                if letter == ":":
+                    message_element.send_keys(letter)
+                    index += 1
+                    while index < length:
+                        letter = message[index]
+                        if letter == ":":
+                            message_element.send_keys(Keys.ENTER)
+                            break
+                        message_element.send_keys(letter)
+                        index += 1
+                elif letter == "\n":
                     message_element.send_keys(Keys.SHIFT, Keys.ENTER)
                 else:
                     message_element.send_keys(letter)
                 time.sleep(0.25)
+                index += 1
             message_element.send_keys(Keys.ENTER)
             time.sleep(3)
         except:
@@ -145,12 +162,26 @@ class PyWp:
         try:
             caption_path = f'//*[@id="app"]/div/div/div[3]/div[2]/span/div/span/div/div/div[2]/div/div[1]/div[3]/div/div/div[2]/div[1]/div[1]/p'
             caption_element = WebDriverWait(self.driver, 15).until(EC.presence_of_element_located((By.XPATH, caption_path)))
-            for char in caption:
-                if char == "\n":
-                    caption_element.send_keys("shift", "enter")
+            index = 0
+            length = len(caption)
+            while index < length:
+                letter = caption[index]
+                if letter == ":":
+                    caption_element.send_keys(letter)
+                    index += 1
+                    while index < length:
+                        letter = caption[index]
+                        if letter == ":":
+                            caption_element.send_keys(Keys.ENTER)
+                            break
+                        caption_element.send_keys(letter)
+                        index += 1
+                elif letter == "\n":
+                    caption_element.send_keys(Keys.SHIFT, Keys.ENTER)
                 else:
-                    caption_element.send_keys(char)
+                    caption_element.send_keys(letter)
                 time.sleep(0.25)
+                index += 1
             caption_element.send_keys(Keys.ENTER)
             time.sleep(2)
         except:
@@ -197,18 +228,33 @@ class PyWp:
         try:
             caption_path = f'//*[@id="app"]/div/div/div[3]/div[2]/span/div/span/div/div/div[2]/div/div[1]/div[3]/div/div/div[1]/div[1]/p'
             caption_element = WebDriverWait(self.driver, 15).until(EC.presence_of_element_located((By.XPATH, caption_path)))
-            for char in caption:
-                if char == "\n":
-                    caption_element.send_keys("shift", "enter")
+            index = 0
+            length = len(caption)
+            while index < length:
+                letter = caption[index]
+                if letter == ":":
+                    caption_element.send_keys(letter)
+                    index += 1
+                    while index < length:
+                        letter = caption[index]
+                        if letter == ":":
+                            caption_element.send_keys(Keys.ENTER)
+                            break
+                        caption_element.send_keys(letter)
+                        index += 1
+                elif letter == "\n":
+                    caption_element.send_keys(Keys.SHIFT, Keys.ENTER)
                 else:
-                    caption_element.send_keys(char)
+                    caption_element.send_keys(letter)
                 time.sleep(0.25)
-                
+                index += 1
             caption_element.send_keys(Keys.ENTER)
-            time.sleep(wait_time)
+            time.sleep(2)
         except:
             print("Image Caption Could not be sent")
             return
+        
+        time.sleep(max(20, wait_time))
 
 
     def send_video_to_multiple_contacts(self, phone_nos: list[str], path: str, caption: str=""):
