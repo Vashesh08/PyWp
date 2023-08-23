@@ -19,24 +19,26 @@ pip install -r PyWp\requirements.txt
 ```
 from whats import PyWp
 
+pywp = PyWp()
+
 # Send a WhatsApp Message to a Contact
-PyWp().send_message("+910123456789", "Hello")
+pywp.send_message("+910123456789", "Hello")
 
 # Send Same Message To Multiple Contacts
-PyWp().send_messages_to_multiple_contacts(["+910123456789", "910123456789"], "Hello")
+pywp.send_messages_to_multiple_contacts(["+910123456789", "910123456789"], "Hello")
 
 # Send a Image to a Contact
-PyWp().send_image("+910123456789", r"C:\Users\path_to_image", "Caption")
+pywp.send_image("+910123456789", r"C:\Users\path_to_image", "Caption")
 
 # Send Same Image to Multiple Contacts
-PyWp().send_image_to_multiple_contacts(["+910123456789", "910123456789"], r"C:\Users\path_to_image", "caption")
+pywp.send_image_to_multiple_contacts(["+910123456789", "910123456789"], r"C:\Users\path_to_image", "caption")
 
 # Send a Video to a Contact
-PyWp().send_video("+910123456789", r"C:\Users\path_to_video", "Caption")
+pywp.send_video("+910123456789", r"C:\Users\path_to_video", "Caption")
 
 # Send Same Video to Multiple Contacts
-PyWp().send_video_to_multiple_contacts(["+910123456789", "910123456789"], r"C:\Users\path_to_video", "caption")
+pywp.send_video_to_multiple_contacts(["+910123456789", "910123456789"], r"C:\Users\path_to_video", "caption")
 
 # To logout of Whatsapp and close browser
-PyWp().close_browser()
+pywp.close_browser()
 ```
