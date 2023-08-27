@@ -8,7 +8,7 @@ from io import BytesIO
 from PIL import Image
 from webbrowser import open
 import win32clipboard
-
+import json
 
 class PyWp:
 
@@ -36,6 +36,10 @@ class PyWp:
             #specify where your chrome driver present in your pc
         
         self.open_browser()
+
+        # Purshotam: importing the xpaths for web-app elements (XAPTHS from WHATSAPP_XPATHS.JSON)
+        with open('whatsapp_xpaths.json', 'r') as json_file:
+            self.xpaths = json.load(json_file)
             
 
     def open_browser(self, path="https://web.whatsapp.com/"):
@@ -45,7 +49,7 @@ class PyWp:
         # time.sleep(120)
         input("Press Enter once you log in")
 
-
+    # Purshotam: Directly referencing nav_xpath from XPATHS dictionary.
     def logout(self):
         nav_xpath = '//*[@id="app"]/div/div/div[4]/header/div[2]/div/span/div[4]/div/span'
         nav_element = WebDriverWait(self.driver, 15).until(EC.presence_of_element_located((By.XPATH, nav_xpath)))
@@ -269,4 +273,58 @@ class PyWp:
             self.send_video(phone_no, path, custom_message)
             time.sleep(1)
 
-    
+    # Purshotam: Creating a decision making function for common WEBDRIVER element interaction using a list of actions:
+        # Click ['click']
+        # Send Keys ['key_press',keys_array]
+        # Send Message [Text + Emoji] or Caption ['text', text]
+        # Custom ( Uses a function )
+    def element_interaction(self, xpath: str, ele_name: str, func_name: str, actions: array, web_object=False):
+        # Initiating webdriver element
+        element_xpath = xpath
+        element_object = WebDriverWait(self.driver, 15).until(EC.presence_of_element_located((By.XPATH, element_xpath)))
+
+        # Interacting with the element based on given actions (click, send keys or message)
+        for interact in actions:
+            if interact[0] == 'click':
+                try:
+                    element_object.click()
+                except:
+                    error = f"Program not able to click [[{ele_name}]] from the function [[{func_name}]]"
+                    print(error)
+            elif interact[0] == 'key_press':
+                try:
+                    for key in interact:
+                        element_object.send_keys(key)
+                except:
+                    error = f"Program not able to send keys to [[{ele_name}]] from the function [[{func_name}]]"
+                    print(error)
+            elif interact[0] == 'message':
+                text = interact[1]
+                index = 0
+                length = len(text)
+                while index < length:
+                    try:
+                        letter = text[index]
+                        if letter == ":":
+                            element_object.send_keys(letter)
+                            index += 1
+                            while index < length:
+                                letter = text[index]
+                                if letter == ":":
+                                    element_object.send_keys(Keys.ENTER)
+                                    break
+                                element_object.send_keys(letter)
+                                index += 1
+                        elif letter == "\n":
+                            element_object.send_keys(Keys.SHIFT, Keys.ENTER)
+                        else:
+                            element_object.send_keys(letter)
+                    except:
+                        error = f"Program not able to send message to [[{ele_name}]] from the function [[{func_name}]]"
+                        print(error)
+            else:
+                error = f"Invalid interactions to [[{ele_name}]] from the function [[{func_name}]]"
+                print(error)
+                
+
+        
