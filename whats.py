@@ -8,7 +8,25 @@ from io import BytesIO
 from PIL import Image
 from webbrowser import open
 import win32clipboard
+import json
+from selunium_web_element_actions.py import element_interaction
 
+# IMPORTANT FOR DEVELOPERS OR SCRIPT KIDDIES!!!!
+# Important GENERIC function used in this script:
+# element_interaction(xpath: str, ele_name: str, func_name: str, actions: list[interacts list])
+# element_interaction(xpath, ele_name, func_name, actions)
+
+# Important DATA imported and used in this script:
+# XPATHS from whatsapp_xpaths.json
+# whatsapp_xpaths.json also contain one metadata about the xpaths called "function" which stores
+# the function names in which these xpaths are likely or are already in use. This metadata helps
+# helps developers or script kiddies to debug in case of whatsapp modifying its user interface
+# rending the xpaths useless by letting them change xpaths through function generated custom 
+# error.
+
+# If you want to understand the script please checkout these two files:
+# selenium_web_element_actions.py
+# whatsapp_xpaths.json
 
 class PyWp:
 
@@ -36,6 +54,10 @@ class PyWp:
             #specify where your chrome driver present in your pc
         
         self.open_browser()
+
+        # Purshotam: importing the xpaths for web-app elements (XAPTHS from WHATSAPP_XPATHS.JSON)
+        with open('whatsapp_xpaths.json', 'r') as json_file:
+            self.xpaths = json.load(json_file)
             
 
     def open_browser(self, path="https://web.whatsapp.com/"):
@@ -45,20 +67,17 @@ class PyWp:
         # time.sleep(120)
         input("Press Enter once you log in")
 
-
+    # Purshotam: Directly referencing nav_xpath from XPATHS dictionary.
     def logout(self):
-        nav_xpath = '//*[@id="app"]/div/div/div[4]/header/div[2]/div/span/div[4]/div/span'
-        nav_element = WebDriverWait(self.driver, 15).until(EC.presence_of_element_located((By.XPATH, nav_xpath)))
-        nav_element.click()
+        this_func_name = logout.__name__
+        
+        action_click = [ [['click']] ]
 
-        logout_xpath = f'//*[@id="app"]/div/div/div[4]/header/div[2]/div/span/div[4]/span/div/ul/li[6]/div'
-        logout_element = WebDriverWait(self.driver, 15).until(EC.presence_of_element_located((By.XPATH, logout_xpath)))
-        logout_element.click()
-
-        logout_confirmation_xpath = f'//*[@id="app"]/div/span[2]/div/div/div/div/div/div/div[3]/div/button[2]'
-        logout_confirmation_element = WebDriverWait(self.driver, 15).until(EC.presence_of_element_located((By.XPATH, logout_confirmation_xpath)))
-        logout_confirmation_element.click()
-
+        # Ensuring logout by clicking nav_button then log_button and at the end log_confirmation_button
+        element_interaction(self.xpaths['nav_xpath']['path'], 'nav', this_func_name, action_click)
+        element_interaction(self.xpaths['logout_xpath']['path'], 'logout_button', this_func_name, action_click)
+        element_interaction(self.xpaths['logout_confirmation_xpath']['path'], 'logout_confirm', this_func_name, action_click)
+        
         time.sleep(25)
 
 
@@ -68,16 +87,21 @@ class PyWp:
 
 
     def select_contact(self, phone_no: str):
+        this_func_name = select_contact.__name__
+        
         try:
-            search_box_xpath = "//*[@id='side']/div[1]/div/div/div[2]/div/div[1]"
-            search_box = WebDriverWait(self.driver, 15).until(EC.presence_of_element_located((By.XPATH, search_box_xpath)))
-            search_box.send_keys(Keys.CONTROL, "a")
-            search_box.send_keys(Keys.BACKSPACE)
+            action_opening_search = [ ['ctrl_press','a'], ['key_press',[Keys.BACKSPACE]] ]
+            element_interaction(self.xpaths['search_box_xpath']['path'], 'contact_search_box', this_func_name, action_opening_search)
+            
             for digit in phone_no:
+                action_enter_digit = [ ['key_press',[digit]] ]
+                element_interaction(self.xpaths['search_box_xpath']['path'], 'contact_search_box', this_func_name, action_enter_digit)
                 search_box.send_keys(digit)
                 time.sleep(0.25)
             time.sleep(2)
-            search_box.send_keys(Keys.ENTER)
+
+            action_send = [ ['key_press',[Keys.ENTER]] ]
+            element_interaction(self.xpaths['search_box_xpath']['path'], 'contact_search_box', this_func_name, actions)
             time.sleep(2)
         except:
             print("Not able to find contact ")
@@ -87,31 +111,13 @@ class PyWp:
 
 
     def send_message(self, phone_no: str, message: str):
+        this_func_name = send_message.__name__
+        
         self.select_contact(phone_no)
         try:
-            message_path = f'//*[@id="main"]/footer/div[1]/div/span[2]/div/div[2]/div[1]'
-            message_element = WebDriverWait(self.driver, 15).until(EC.presence_of_element_located((By.XPATH, message_path)))
-            index = 0
-            length = len(message)
-            while index < length:
-                letter = message[index]
-                if letter == ":":
-                    message_element.send_keys(letter)
-                    index += 1
-                    while index < length:
-                        letter = message[index]
-                        if letter == ":":
-                            message_element.send_keys(Keys.ENTER)
-                            break
-                        message_element.send_keys(letter)
-                        index += 1
-                elif letter == "\n":
-                    message_element.send_keys(Keys.SHIFT, Keys.ENTER)
-                else:
-                    message_element.send_keys(letter)
-                time.sleep(0.25)
-                index += 1
-            message_element.send_keys(Keys.ENTER)
+            action_send_message = [ ['message', message], ['key_press',[Keys.ENTER]] ]
+            element_interaction(self.xpaths['message_xpath']['path'], 'message_box', this_func_name, action_send_message)
+            
             time.sleep(3)
         except:
             print("Message Not Sent to ", phone_no)
@@ -137,6 +143,8 @@ class PyWp:
 
 
     def send_image(self, phone_no: str, path: str, caption: str=""):
+        this_func_name = send_image.__name__
+        
         path.replace('\\','//')
         
         self.select_contact(phone_no)
@@ -152,37 +160,17 @@ class PyWp:
         win32clipboard.CloseClipboard()
         
         try:
-            message_path = f'//*[@id="main"]/footer/div[1]/div/span[2]/div/div[2]/div[1]'
-            message_element = WebDriverWait(self.driver, 15).until(EC.presence_of_element_located((By.XPATH, message_path)))
-            message_element.send_keys(Keys.CONTROL, "v")
+            action_paste_image = [ ['ctrl_press', 'v'] ]
+            element_interaction(self.xpaths['message_xpath']['path'], 'message_box', this_func_name, action_paste_image)
+        
         except:
             print("Image Not Able to Paste")
             return
         
         try:
-            caption_path = f'//*[@id="app"]/div/div/div[3]/div[2]/span/div/span/div/div/div[2]/div/div[1]/div[3]/div/div/div[2]/div[1]/div[1]/p'
-            caption_element = WebDriverWait(self.driver, 15).until(EC.presence_of_element_located((By.XPATH, caption_path)))
-            index = 0
-            length = len(caption)
-            while index < length:
-                letter = caption[index]
-                if letter == ":":
-                    caption_element.send_keys(letter)
-                    index += 1
-                    while index < length:
-                        letter = caption[index]
-                        if letter == ":":
-                            caption_element.send_keys(Keys.ENTER)
-                            break
-                        caption_element.send_keys(letter)
-                        index += 1
-                elif letter == "\n":
-                    caption_element.send_keys(Keys.SHIFT, Keys.ENTER)
-                else:
-                    caption_element.send_keys(letter)
-                time.sleep(0.25)
-                index += 1
-            caption_element.send_keys(Keys.ENTER)
+            action_send_image_with_caption = [ ['message',caption], ['key_press',[Keys.ENTER]]]
+            element_interaction(self.xpaths['caption_xpath']['path'], 'caption_box', this_func_name, action_send_image_with_caption)
+            
             time.sleep(2)
         except:
             print("Caption Could not be sent")
@@ -202,53 +190,32 @@ class PyWp:
             time.sleep(1)
 
 
-    def send_video(self, phone_no: str, path: str, caption: str="", wait_time=25):
-        path.replace('\\','//')
+    def send_video(self, phone_no: str, vid_path: str, caption: str="", wait_time=25):
+        this_func_name = send_video.__name__
+        
+        vid_path.replace('\\','//')
         
         self.select_contact(phone_no)
+        action_click = [ ['click'] ]
+        action_paste_video = [ ['key_press',[path]] ]
+        action_send_video_with_caption = [ ['message',caption], ['key_press',[Keys.ENTER]] ]
 
         # Opening Attach Button
         try:
-            attachment_path = f'//*[@id="main"]/footer/div[1]/div/span[2]/div/div[1]/div[2]/div/div/div/span'
-            attachment_element = WebDriverWait(self.driver, 15).until(EC.presence_of_element_located((By.XPATH, attachment_path)))
-            attachment_element.click()
+            element_interaction(self.xpaths['attachment_xpath']['path'], 'attachment_button', this_func_name, action_click)
         except:
             print("Not Able to open Attachment")
             return
         
         try:
-            video_attachment_path = f'//input[@accept="image/*,video/mp4,video/3gpp,video/quicktime"]'
-            video_attachment_element = WebDriverWait(self.driver, 15).until(EC.presence_of_element_located((By.XPATH, video_attachment_path)))
-            video_attachment_element.send_keys(path)
+            element_interaction(self.xpaths['video_attachment_xpath']['path'], 'video_attachment_box', this_func_name, action_paste_video)
             time.sleep(5)
         except:
             print("Not Able to Attach Video")
             return
         
         try:
-            caption_path = f'//*[@id="app"]/div/div/div[3]/div[2]/span/div/span/div/div/div[2]/div/div[1]/div[3]/div/div/div[1]/div[1]/p'
-            caption_element = WebDriverWait(self.driver, 15).until(EC.presence_of_element_located((By.XPATH, caption_path)))
-            index = 0
-            length = len(caption)
-            while index < length:
-                letter = caption[index]
-                if letter == ":":
-                    caption_element.send_keys(letter)
-                    index += 1
-                    while index < length:
-                        letter = caption[index]
-                        if letter == ":":
-                            caption_element.send_keys(Keys.ENTER)
-                            break
-                        caption_element.send_keys(letter)
-                        index += 1
-                elif letter == "\n":
-                    caption_element.send_keys(Keys.SHIFT, Keys.ENTER)
-                else:
-                    caption_element.send_keys(letter)
-                time.sleep(0.25)
-                index += 1
-            caption_element.send_keys(Keys.ENTER)
+            element_interaction(self.xpaths['caption_xpath']['path'], 'caption_box', this_func_name, action_send_video_with_caption)
             time.sleep(2)
         except:
             print("Image Caption Could not be sent")
@@ -268,5 +235,6 @@ class PyWp:
             custom_message = caption.replace("{name}", name)
             self.send_video(phone_no, path, custom_message)
             time.sleep(1)
+                
 
-    
+        
